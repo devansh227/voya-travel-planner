@@ -1,4 +1,3 @@
-
 import os
 
 from fastapi import FastAPI
@@ -13,18 +12,25 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Allow the local Vite dev server to call the API from the browser.
-# Override with a comma-separated CORS_ORIGINS value in .env if needed.
-_DEFAULT_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
+# Allow local development and the deployed Vercel frontend.
+_DEFAULT_ORIGINS = (
+    "http://localhost:5173,"
+    "http://127.0.0.1:5173,"
+    "https://voya-travel-planner-flame.vercel.app"
+)
+
 allowed_origins = [
-    origin.strip()
-    for origin in os.getenv("CORS_ORIGINS", _DEFAULT_ORIGINS).split(",")
+    origin.strip().rstrip("/")
+    for origin in os.getenv(
+        "CORS_ORIGINS", _DEFAULT_ORIGINS
+    ).split(",")
     if origin.strip()
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
+    allow_credentials=False,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
